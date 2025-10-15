@@ -1,6 +1,6 @@
 # 📘 MangaVerse Full Setup Guide (MongoDB + Node.js)
 
-This guide will help you set up and run your **MangaVerse** project with a real MongoDB database.
+This guide will help you set up and run our **MangaVerse** project with a real MongoDB database.
 
 ---
 
