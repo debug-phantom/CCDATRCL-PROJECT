@@ -187,13 +187,5 @@ nodemon manga_backend.js
 - The default manga data is inserted once (if collection is empty).
 - You can edit or add manga manually through MongoDB Compass or Atlas UI.
 
----
 
-## 🏁 You're Done!
 
-You now have a fully working **MangaVerse web app** with:
-- A stunning animated frontend
-- Node.js + Express backend
-- MongoDB database with user and manga storage
-
-Enjoy building your manga universe! 🌸
