@@ -947,4 +947,63 @@
         async function loadMangas() {
             const sort = document.getElementById('sortSelect').value;
             const search = document.getElementById('searchInput').value;
-            const loading = 
+            const loading =         async function loadMangas() {
+            const sort = document.getElementById('sortSelect').value;
+            const search = document.getElementById('searchInput').value;
+            const loading = document.getElementById('loading');
+            const mangaGrid = document.getElementById('mangaGrid');
+
+            loading.classList.remove('hidden');
+            mangaGrid.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_URL}/mangas?sort=${sort}&search=${search}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const mangas = await response.json();
+
+                loading.classList.add('hidden');
+                mangaGrid.innerHTML = mangas.map(manga => `
+                    <div class="manga-card">
+                        <div class="manga-cover-wrapper">
+                            <img src="${manga.cover}" alt="${manga.title}" class="manga-cover">
+                            <div class="manga-overlay"></div>
+                            <div class="quick-actions">
+                                <button class="action-btn">Read</button>
+                                <button class="action-btn">Favorite</button>
+                            </div>
+                        </div>
+                        <div class="manga-info">
+                            <span class="manga-genre">${manga.genre}</span>
+                            <h3 class="manga-title">${manga.title}</h3>
+                            <p class="manga-author">${manga.author}</p>
+                            <div class="manga-meta">
+                                <span class="chapters">${manga.chapters} Chapters</span>
+                                <span class="rating"><span class="star">⭐</span>${manga.rating}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                loading.classList.add('hidden');
+                mangaGrid.innerHTML = `<p style="text-align:center;color:#f87171;">Failed to load mangas. Please refresh.</p>`;
+            }
+        }
+
+        // Event Listeners for Controls
+        document.getElementById('sortSelect').addEventListener('change', loadMangas);
+        document.getElementById('searchInput').addEventListener('input', () => {
+            clearTimeout(window.searchTimer);
+            window.searchTimer = setTimeout(loadMangas, 400);
+        });
+
+        // Error Display Function
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => element.style.display = 'none', 3000);
+        }
+    </script>
+</body>
+</html>
