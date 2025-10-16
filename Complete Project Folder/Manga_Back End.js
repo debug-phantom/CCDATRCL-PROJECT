@@ -1,7 +1,3 @@
-  // ==========================
-// MangaVerse Backend (MongoDB)
-// ==========================
-
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -169,4 +165,5 @@ app.get('*', (req, res) =>
 );
 
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
+
 
