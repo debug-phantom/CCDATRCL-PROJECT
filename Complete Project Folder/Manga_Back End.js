@@ -1,3 +1,7 @@
+  // ==========================
+// MangaVerse Backend (MongoDB)
+// ==========================
+
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -13,7 +17,7 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static('public'));
 
-// 🟢 Connect MongoDB
+// 🟢 Connect to MongoDB
 mongoose.connect('mongodb://localhost:27017/mangaverse', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -21,7 +25,7 @@ mongoose.connect('mongodb://localhost:27017/mangaverse', {
 .then(() => console.log('✅ Connected to MongoDB'))
 .catch(err => console.error('❌ MongoDB error:', err));
 
-// 🧱 Schemas
+// 📦 Schemas
 const userSchema = new mongoose.Schema({
   username: String,
   email: String,
@@ -50,7 +54,7 @@ const User = mongoose.model('User', userSchema);
 const Manga = mongoose.model('Manga', mangaSchema);
 const History = mongoose.model('History', historySchema);
 
-// 📚 Seed default manga
+// 📚 Default Manga
 (async () => {
   const count = await Manga.countDocuments();
   if (count === 0) {
@@ -112,7 +116,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// 📚 Get all mangas
+// 📖 Get Manga List
 app.get('/api/mangas', authenticateToken, async (req, res) => {
   const { sort = 'asc', search = '' } = req.query;
   const mangas = await Manga.find({
@@ -121,13 +125,12 @@ app.get('/api/mangas', authenticateToken, async (req, res) => {
   res.json(mangas);
 });
 
-// 📖 View a manga (and record in reading history)
+// 📘 View Specific Manga (Logs to History)
 app.get('/api/mangas/:id', authenticateToken, async (req, res) => {
   try {
     const manga = await Manga.findById(req.params.id);
     if (!manga) return res.status(404).json({ message: 'Manga not found' });
 
-    // Update reading history
     await History.findOneAndUpdate(
       { userId: req.user.id, mangaId: manga._id },
       {
@@ -150,7 +153,7 @@ app.get('/api/mangas/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// 🕒 Get reading history
+// 🕒 Get Reading History
 app.get('/api/history', authenticateToken, async (req, res) => {
   try {
     const history = await History.find({ userId: req.user.id }).sort({ lastReadAt: -1 });
@@ -160,7 +163,10 @@ app.get('/api/history', authenticateToken, async (req, res) => {
   }
 });
 
-// Serve frontend
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'manga_frontend.html')));
+// 🌐 Serve Frontend
+app.get('*', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'manga_frontend.html'))
+);
 
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
+
