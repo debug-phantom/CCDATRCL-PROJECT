@@ -179,10 +179,6 @@ You’re now ready to demo **MangaVerse** with these features:
 ✅ Review system with stars and comments  
 ✅ MongoDB database integration  
 
----
 
-**Created by:** Your Team  
-**Presented to:** Your Professor  
-**Date:** October 16, 2025
 
-✨ Enjoy showing off your project!
+
