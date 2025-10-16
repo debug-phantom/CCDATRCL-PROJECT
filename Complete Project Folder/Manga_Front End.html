@@ -1,0 +1,210 @@
+<script>
+const API_URL = 'http://localhost:3000/api';
+let token = localStorage.getItem('token');
+let currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+
+// Initialize
+if (token) {
+    showMainPage();
+}
+
+// Auth Toggle
+document.getElementById('showRegister').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('registerPage').classList.remove('hidden');
+});
+
+document.getElementById('showLogin').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('registerPage').classList.add('hidden');
+    document.getElementById('loginPage').classList.remove('hidden');
+});
+
+// Login
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        const response = await fetch(`${API_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            token = data.token;
+            currentUser = data.user;
+            showMainPage();
+        } else {
+            showError('loginError', data.message);
+        }
+    } catch {
+        showError('loginError', 'Connection error. Please try again.');
+    }
+});
+
+// Register
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('registerUsername').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+
+    try {
+        const response = await fetch(`${API_URL}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            token = data.token;
+            currentUser = data.user;
+            showMainPage();
+        } else {
+            showError('registerError', data.message);
+        }
+    } catch {
+        showError('registerError', 'Connection error. Please try again.');
+    }
+});
+
+// Logout
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    token = null;
+    currentUser = {};
+    document.getElementById('mainPage').classList.add('hidden');
+    document.getElementById('loginPage').classList.remove('hidden');
+});
+
+// Show Main Page
+function showMainPage() {
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('registerPage').classList.add('hidden');
+    document.getElementById('mainPage').classList.remove('hidden');
+    document.getElementById('userName').textContent = currentUser.username;
+    document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+    loadMangas();
+}
+
+// Load Mangas
+async function loadMangas() {
+    const sort = document.getElementById('sortSelect').value;
+    const search = document.getElementById('searchInput').value;
+    const loading = document.getElementById('loading');
+    const mangaGrid = document.getElementById('mangaGrid');
+
+    loading.classList.remove('hidden');
+    mangaGrid.innerHTML = '';
+
+    try {
+        const response = await fetch(`${API_URL}/mangas?sort=${sort}&search=${search}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const mangas = await response.json();
+
+        loading.classList.add('hidden');
+        mangaGrid.innerHTML = mangas.map(manga => `
+            <div class="manga-card" data-id="${manga._id}">
+                <div class="manga-cover-wrapper">
+                    <img src="${manga.cover}" alt="${manga.title}" class="manga-cover">
+                    <div class="manga-overlay"></div>
+                    <div class="quick-actions">
+                        <button class="action-btn read-btn" data-id="${manga._id}">Read</button>
+                        <button class="action-btn fav-btn">Favorite</button>
+                    </div>
+                </div>
+                <div class="manga-info">
+                    <span class="manga-genre">${manga.genre}</span>
+                    <h3 class="manga-title">${manga.title}</h3>
+                    <p class="manga-author">${manga.author}</p>
+                    <div class="manga-meta">
+                        <span class="chapters">${manga.chapters} Chapters</span>
+                        <span class="rating"><span class="star">⭐</span>${manga.rating}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        // Add event listeners for "Read" buttons
+        document.querySelectorAll('.read-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = e.target.getAttribute('data-id');
+                await readManga(id);
+            });
+        });
+    } catch (error) {
+        loading.classList.add('hidden');
+        mangaGrid.innerHTML = `<p style="text-align:center;color:#f87171;">Failed to load mangas. Please refresh.</p>`;
+    }
+}
+
+// 📖 View & log reading history
+async function readManga(mangaId) {
+    try {
+        const res = await fetch(`${API_URL}/mangas/${mangaId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            alert(`📖 You opened "${data.title}"!\nTotal Chapters: ${data.chapters}`);
+            loadHistory(); // Refresh reading history
+        } else {
+            alert(data.message);
+        }
+    } catch {
+        alert('Error loading manga.');
+    }
+}
+
+// 🕒 Load reading history
+async function loadHistory() {
+    try {
+        const res = await fetch(`${API_URL}/history`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const history = await res.json();
+
+        let historyHTML = '<h2 style="margin:30px 0 10px;">📚 Reading History</h2>';
+        historyHTML += history.length
+            ? `<ul style="list-style:none;padding:0;">${history.map(h =>
+                `<li style="margin-bottom:10px;background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;">
+                    <strong>${h.title}</strong> — ${h.lastReadChapter} chapters (Last read: ${new Date(h.lastReadAt).toLocaleString()})
+                </li>`).join('')}</ul>`
+            : '<p style="color:gray;">No history yet.</p>';
+
+        document.getElementById('mangaGrid').insertAdjacentHTML('afterend', historyHTML);
+    } catch {
+        console.error('Failed to load history');
+    }
+}
+
+// Event Listeners for Controls
+document.getElementById('sortSelect').addEventListener('change', loadMangas);
+document.getElementById('searchInput').addEventListener('input', () => {
+    clearTimeout(window.searchTimer);
+    window.searchTimer = setTimeout(loadMangas, 400);
+});
+
+// Error Display Function
+function showError(elementId, message) {
+    const element = document.getElementById(elementId);
+    element.textContent = message;
+    element.style.display = 'block';
+    setTimeout(() => element.style.display = 'none', 3000);
+}
+</script>
