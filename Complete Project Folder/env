@@ -1,0 +1,8 @@
+PORT=3000
+
+# MongoDB Connection String
+# This points to your cloud database on MongoDB Atlas.
+MONGO_URI=mongodb+srv://aquinomike303_db_user:Is34RaLUDc9Q95lz@mangatabase.jwg3cpn.mongodb.net/mangaverse?retryWrites=true&w=majority
+
+# JWT Secret Key - A long, random string for security.
+JWT_SECRET=this_is_a_very_secret_key_for_mangaverse

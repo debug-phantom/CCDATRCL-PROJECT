@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MangaVerse - Presentation Ready</title>
+<style>
+/* ---------- Full CSS (glowing UI) ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #0a0e27;
+  color: #fff;
+  overflow-x: hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Animated Background */
+.bg-animation {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+  background: linear-gradient(45deg, #0a0e27, #1a1f3a, #2d1b4e);
+  background-size: 400% 400%; animation: gradientFlow 15s ease infinite;
+}
+.bg-animation::before {
+  content: ''; position: absolute; width: 200%; height: 200%; top: -50%; left: -50%;
+  background: radial-gradient(circle, rgba(147,51,234,0.1) 1px, transparent 1px);
+  background-size: 50px 50px; animation: moveGrid 20s linear infinite;
+}
+@keyframes gradientFlow { 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes moveGrid { 0%{transform:translate(0,0)}100%{transform:translate(50px,50px)}}
+
+/* Glowing Orbs */
+.orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.6; pointer-events: none; z-index: -1; }
+.orb1 { width: 500px; height:500px; background: linear-gradient(45deg,#9333ea,#ec4899); top:-200px; right:-200px; animation: float 20s ease-in-out infinite; }
+.orb2 { width: 400px; height:400px; background: linear-gradient(45deg,#3b82f6,#8b5cf6); bottom:-150px; left:-150px; animation: float 15s ease-in-out infinite reverse; }
+.orb3 { width: 350px; height:350px; background: linear-gradient(45deg,#10b981,#06b6d4); top:50%; right:10%; animation: float 18s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(50px,50px) rotate(180deg)} }
+
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+
+/* Auth Pages */
+.auth-container { min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+.auth-box { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border:1px solid rgba(255,255,255,0.1); border-radius:30px; padding:50px 40px; width:100%; max-width:450px; box-shadow:0 25px 50px rgba(0,0,0,0.5); animation: slideUp .8s ease; position:relative; overflow:hidden; }
+.auth-content { position: relative; z-index: 2; }
+.auth-box::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background: radial-gradient(circle, rgba(147,51,234,0.1), transparent 70%); animation: rotate 20s linear infinite; }
+@keyframes rotate { 0%{transform:rotate(0)}100%{transform:rotate(360deg)} }
+@keyframes slideUp { from{opacity:0;transform:translateY(50px)} to{opacity:1;transform:translateY(0)} }
+
+.auth-logo { text-align:center; margin-bottom:30px; }
+.auth-logo h1 { font-size:42px; font-weight:800; background: linear-gradient(135deg,#9333ea,#ec4899,#f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:10px; animation: shimmer 3s ease-in-out infinite; }
+@keyframes shimmer { 0%,100%{filter:brightness(1)}50%{filter:brightness(1.5)} }
+.auth-logo p { color: rgba(255,255,255,0.6); font-size:14px; }
+
+.form-group { margin-bottom:25px; }
+.form-group label { display:block; margin-bottom:10px; color: rgba(255,255,255,0.9); font-weight:500; font-size:14px; }
+.form-group input { width:100%; padding:15px 20px; background: rgba(255,255,255,0.05); border:2px solid rgba(255,255,255,0.1); border-radius:15px; color:#fff; font-size:15px; transition:all .3s ease; }
+.form-group input:focus { outline:none; border-color:#9333ea; background:rgba(147,51,234,0.1); box-shadow:0 0 20px rgba(147,51,234,0.3); }
+
+.btn { width:100%; padding:16px; background: linear-gradient(135deg,#9333ea,#ec4899); color:white; border:none; border-radius:15px; font-size:16px; font-weight:700; cursor:pointer; transition:all .3s ease; position:relative; overflow:hidden; text-transform:uppercase; letter-spacing:1px; }
+.btn::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transition:left .5s; }
+.btn:hover::before { left:100%; }
+.btn:hover { transform:translateY(-3px); box-shadow:0 15px 35px rgba(147,51,234,0.5); }
+.btn:active { transform:translateY(-1px); }
+
+.toggle-auth { text-align:center; margin-top:25px; color: rgba(255,255,255,0.6); font-size:14px; }
+.toggle-auth a { color:#ec4899; text-decoration:none; font-weight:600; transition:color .3s; }
+.toggle-auth a:hover { color:#9333ea; }
+
+.error-message { background: rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.5); color:#fca5a5; padding:12px; border-radius:10px; margin-bottom:20px; display:none; font-size:14px; }
+
+/* Header */
+.header { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border:1px solid rgba(255,255,255,0.1); padding:25px 40px; border-radius:25px; margin-bottom:40px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; animation: fadeIn 1s ease; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.logo { display:flex; align-items:center; gap:15px; }
+.logo-icon { width:50px; height:50px; background: linear-gradient(135deg,#9333ea,#ec4899); border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:28px; animation:pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.1)} }
+.logo h1 { font-size:32px; font-weight:800; background:linear-gradient(135deg,#9333ea,#ec4899,#f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+.header-actions { display:flex; gap:15px; align-items:center; }
+.user-badge { background: rgba(255,255,255,0.05); padding:12px 25px; border-radius:50px; border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; gap:10px; }
+.user-avatar { width:35px; height:35px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; }
+.logout-btn { padding:12px 30px; background:linear-gradient(135deg,#ef4444,#dc2626); color:white; border:none; border-radius:50px; cursor:pointer; font-weight:600; transition:all .3s ease; }
+.logout-btn:hover { transform:translateY(-3px); box-shadow:0 10px 25px rgba(239,68,68,0.4); }
+
+/* Controls */
+.controls { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border:1px solid rgba(255,255,255,0.1); padding:30px; border-radius:25px; margin-bottom:40px; display:flex; gap:20px; flex-wrap:wrap; align-items:center; animation: fadeIn 1s ease 0.2s both; }
+.search-box { flex:1; min-width:300px; position:relative; }
+.search-icon { position:absolute; left:20px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.4); font-size:20px; }
+.search-box input { width:100%; padding:16px 20px 16px 55px; background:rgba(255,255,255,0.05); border:2px solid rgba(255,255,255,0.1); border-radius:50px; color:#fff; font-size:15px; transition:all .3s ease; }
+.search-box input:focus { outline:none; border-color:#9333ea; background:rgba(147,51,234,0.1); box-shadow:0 0 30px rgba(147,51,234,0.3); }
+.sort-box { position:relative; }
+.sort-box select { padding:16px 50px 16px 25px; background:rgba(255,255,255,0.05); border:2px solid rgba(255,255,255,0.1); border-radius:50px; color:#fff; font-size:15px; cursor:pointer; font-weight:600; transition:all .3s ease; appearance:none; }
+.sort-box select:focus { outline:none; border-color:#9333ea; box-shadow:0 0 30px rgba(147,51,234,0.3); }
+.sort-box::after { content:'▼'; position:absolute; right:25px; top:50%; transform:translateY(-50%); pointer-events:none; color:rgba(255,255,255,0.5); }
+.view-toggle { display:flex; gap:10px; background:rgba(255,255,255,0.05); padding:8px; border-radius:50px; }
+.view-btn { padding:10px 20px; background:transparent; border:none; border-radius:50px; color:rgba(255,255,255,0.5); cursor:pointer; transition:all .3s ease; font-size:20px; }
+.view-btn.active { background: linear-gradient(135deg,#9333ea,#ec4899); color:white; }
+
+/* Manga Grid */
+.manga-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap:30px; margin-bottom:50px; animation: fadeIn 1s ease 0.4s both; }
+.manga-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border:1px solid rgba(255,255,255,0.1); border-radius:20px; overflow:hidden; cursor:pointer; transition:all .4s cubic-bezier(0.175,0.885,0.32,1.275); position:relative; }
+.manga-card::before { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background: linear-gradient(135deg, rgba(147,51,234,0.2), rgba(236,72,153,0.2)); opacity:0; transition:opacity .4s ease; }
+.manga-card:hover { transform: translateY(-15px) scale(1.05); border-color: rgba(147,51,234,0.5); box-shadow: 0 25px 50px rgba(147,51,234,0.4); }
+.manga-card:hover::before { opacity:1; }
+.manga-cover-wrapper { position:relative; overflow:hidden; height:340px; }
+.manga-cover { width:100%; height:100%; object-fit:cover; transition:transform .6s ease; }
+.manga-card:hover .manga-cover { transform:scale(1.15); }
+.manga-overlay { position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(to top, rgba(0,0,0,0.9), transparent); opacity:0; transition:opacity .4s ease; }
+.manga-card:hover .manga-overlay { opacity:1; }
+.quick-actions { position:absolute; bottom:15px; left:15px; right:15px; display:flex; gap:10px; opacity:0; transform:translateY(20px); transition:all .4s ease; }
+.manga-card:hover .quick-actions { opacity:1; transform:translateY(0); }
+.action-btn { flex:1; padding:10px; background:rgba(255,255,255,0.2); backdrop-filter: blur(10px); border:1px solid rgba(255,255,255,0.3); border-radius:10px; color:white; font-size:12px; font-weight:600; cursor:pointer; transition:all .3s ease; }
+.action-btn:hover { background:rgba(255,255,255,0.3); }
+
+.manga-info { padding:20px; position:relative; z-index:1; }
+.manga-genre { display:inline-block; padding:5px 12px; background: linear-gradient(135deg,#9333ea,#ec4899); border-radius:20px; font-size:11px; font-weight:600; margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px; }
+.manga-title { font-size:18px; font-weight:700; margin-bottom:8px; color:#fff; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.manga-author { font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:15px; }
+.manga-meta { display:flex; justify-content:space-between; align-items:center; padding-top:15px; border-top:1px solid rgba(255,255,255,0.1); }
+.chapters { font-size:12px; color:rgba(255,255,255,0.6); }
+.rating { display:flex; align-items:center; gap:5px; font-weight:700; color:#fbbf24; }
+.star { font-size:16px; }
+
+/* Loading */
+.loading { text-align:center; padding:100px 20px; }
+.loader { width:60px; height:60px; border:4px solid rgba(255,255,255,0.1); border-top-color:#9333ea; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 20px; }
+@keyframes spin { to { transform:rotate(360deg) } }
+.loading-text { font-size:18px; color:rgba(255,255,255,0.7) }
+
+.hidden { display:none !important; }
+
+/* Modal + reviews */
+.modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter: blur(5px); display:flex; align-items:center; justify-content:center; z-index:1000; }
+.modal { width:90%; max-width:900px; background: linear-gradient(180deg, #10142c, #0c102d); border:1px solid rgba(255,255,255,0.08); border-radius:25px; padding:25px; max-height:90vh; overflow:auto; }
+.modal .manga-header { display:flex; gap:25px; align-items:center; margin-bottom:20px; }
+.modal .manga-cover { width:140px; height:200px; object-fit:cover; border-radius:15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+/* ADDED: New CSS for review items */
+.review-item {
+  background: rgba(255,255,255,0.03);
+  padding: 15px;
+  border-radius: 15px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.review-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#3b82f6,#8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+.review-author {
+  font-weight: 600;
+  color: #e5e7eb;
+}
+.review-date {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  margin-left: auto;
+}
+.review-body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.8);
+}
+
+
+/* Responsive tweaks */
+@media (max-width:768px) {
+  .manga-cover-wrapper { height: 280px; }
+  .manga-grid { grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap:20px; }
+  .modal { width:95%; padding: 15px; }
+  .modal .manga-header { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+  <div class="bg-animation"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <!-- LOGIN -->
+  <div id="loginPage" class="auth-container">
+    <div class="auth-box">
+      <div class="auth-content">
+        <div class="auth-logo">
+          <h1>🌸 MangaVerse</h1>
+          <p>Welcome back to your manga universe</p>
+        </div>
+        <div id="loginError" class="error-message"></div>
+        <form id="loginForm">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="loginEmail" required placeholder="you@email.com">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" required placeholder="••••••••">
+          </div>
+          <button type="submit" class="btn">Sign In</button>
+        </form>
+        <div class="toggle-auth">New to MangaVerse? <a href="#" id="showRegister">Create Account</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="registerPage" class="auth-container hidden">
+    <div class="auth-box">
+      <div class="auth-content">
+        <div class="auth-logo">
+          <h1>🌸 MangaVerse</h1>
+          <p>Start your manga journey today</p>
+        </div>
+        <div id="registerError" class="error-message"></div>
+        <form id="registerForm">
+          <div class="form-group"><label>Username</label><input type="text" id="registerUsername" required placeholder="Choose a username"></div>
+          <div class="form-group"><label>Email Address</label><input type="email" id="registerEmail" required placeholder="you@email.com"></div>
+          <div class="form-group"><label>Password</label><input type="password" id="registerPassword" required placeholder="Create strong password"></div>
+          <button type="submit" class="btn">Create Account</button>
+        </form>
+        <div class="toggle-auth">Already have an account? <a href="#" id="showLogin">Sign In</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="mainPage" class="container hidden">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">🌸</div>
+        <h1>MangaVerse</h1>
+      </div>
+      <div class="header-actions">
+        <div class="user-badge">
+          <div class="user-avatar" id="userAvatar"></div>
+          <span id="userName"></span>
+        </div>
+        <button class="logout-btn" id="historyBtn" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);">History</button>
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search your favorite manga...">
+      </div>
+      <div class="sort-box">
+        <select id="sortSelect"><option value="asc">Sort A → Z</option><option value="desc">Sort Z → A</option></select>
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" data-view="grid">📱</button>
+        <button class="view-btn" data-view="list">📋</button>
+      </div>
+    </div>
+
+    <div id="mangaGrid" class="manga-grid"></div>
+
+    <div id="loading" class="loading hidden">
+      <div class="loader"></div>
+      <div class="loading-text">Loading your manga collection...</div>
+    </div>
+  </div>
+
+<script>
+/* ---------- Full Frontend JS (with Review Display) ---------- */
+
+const API_URL = 'http://localhost:3000/api';
+let token = localStorage.getItem('token');
+let currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+let allMangas = [];
+
+// Init: if logged in
+if (token) {
+  showMainPage();
+}
+
+// Auth toggles
+document.getElementById('showRegister').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('loginPage').classList.add('hidden'); document.getElementById('registerPage').classList.remove('hidden'); });
+document.getElementById('showLogin').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('registerPage').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); });
+
+// LOGIN
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  try {
+    const res = await fetch(`${API_URL}/login`, {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) return showError('loginError', data.message || 'Login failed');
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    token = data.token;
+    currentUser = data.user;
+    showMainPage();
+  } catch (err) {
+    showError('loginError','Connection error. Please try again.');
+  }
+});
+
+// REGISTER
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('registerUsername').value.trim();
+  const email = document.getElementById('registerEmail').value.trim();
+  const password = document.getElementById('registerPassword').value;
+  try {
+    const res = await fetch(`${API_URL}/register`, {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ username, email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) return showError('registerError', data.message || 'Registration failed.');
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    token = data.token;
+    currentUser = data.user;
+    showMainPage();
+  } catch (err) {
+    showError('registerError','Connection error. Please try again.');
+  }
+});
+
+// LOGOUT
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  token = null;
+  currentUser = {};
+  allMangas = [];
+  const panel = document.getElementById('historyPanel');
+  if (panel) panel.remove();
+  document.getElementById('mainPage').classList.add('hidden');
+  document.getElementById('loginPage').classList.remove('hidden');
+});
+
+// SHOW MAIN
+function showMainPage() {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('registerPage').classList.add('hidden');
+  document.getElementById('mainPage').classList.remove('hidden');
+  document.getElementById('userName').textContent = currentUser.username || 'User';
+  document.getElementById('userAvatar').textContent = (currentUser.username && currentUser.username.charAt(0).toUpperCase()) || 'U';
+  loadMangas();
+}
+
+// LOAD MANGAS
+async function loadMangas() {
+  const sort = document.getElementById('sortSelect').value;
+  const search = document.getElementById('searchInput').value;
+  const loading = document.getElementById('loading');
+  const grid = document.getElementById('mangaGrid');
+  loading.classList.remove('hidden');
+  grid.innerHTML = '';
+  try {
+    const res = await fetch(`${API_URL}/mangas?sort=${sort}&search=${encodeURIComponent(search)}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to fetch mangas');
+    const mangas = await res.json();
+    allMangas = mangas;
+    loading.classList.add('hidden');
+    renderMangaGrid();
+  } catch (err) {
+    loading.classList.add('hidden');
+    grid.innerHTML = `<p style="text-align:center;color:#f87171;">Failed to load mangas. Please refresh.</p>`;
+  }
+}
+
+// Renders manga grid and attaches listeners
+function renderMangaGrid() {
+    const grid = document.getElementById('mangaGrid');
+    grid.innerHTML = allMangas.map(m => `
+      <div class="manga-card" data-id="${m._id}">
+        <div class="manga-cover-wrapper">
+          <img class="manga-cover" src="${m.cover || ''}" alt="${escapeHtml(m.title)}" onerror="this.src='https.placehold.co/240x340/0a0e27/ffffff?text=No+Image'">
+          <div class="manga-overlay"></div>
+          <div class="quick-actions">
+            <button class="action-btn read-btn" data-id="${m._id}">Details & Reviews</button>
+          </div>
+        </div>
+        <div class="manga-info">
+          <span class="manga-genre">${escapeHtml(m.genre)}</span>
+          <h3 class="manga-title">${escapeHtml(m.title)}</h3>
+          <p class="manga-author">${escapeHtml(m.author)}</p>
+          <div class="manga-meta">
+            <span class="chapters">${m.chapters} Chapters</span>
+            <span class="rating"><span class="star">⭐</span>${m.rating}</span>
+          </div>
+        </div>
+      </div>`).join('');
+
+    document.querySelectorAll('.read-btn').forEach(b => {
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const mangaId = e.target.getAttribute('data-id');
+        openReadModal(mangaId);
+      });
+    });
+}
+
+// **NEW: Helper function to render the list of reviews**
+function renderReviews(reviews, containerEl) {
+    if (!reviews || reviews.length === 0) {
+        containerEl.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px 0;">No reviews yet. Be the first to leave one!</p>';
+        return;
+    }
+
+    containerEl.innerHTML = reviews.map(r => `
+        <div class="review-item">
+            <div class="review-header">
+                <div class="review-avatar">${escapeHtml(r.username.charAt(0).toUpperCase())}</div>
+                <span class="review-author">${escapeHtml(r.username)}</span>
+                <span class="review-date">${new Date(r.date).toLocaleDateString()}</span>
+            </div>
+            <p class="review-body">${escapeHtml(r.review)}</p>
+        </div>
+    `).reverse().join('');
+}
+
+
+// MODIFIED: Read Modal now fetches details and shows reviews
+async function openReadModal(mangaId) {
+  try {
+    const res = await fetch(`${API_URL}/mangas/${mangaId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Could not fetch manga details.');
+    const manga = await res.json();
+
+    // Log history on backend (fire and forget)
+    fetch(`${API_URL}/history`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ mangaTitle: manga.title, chaptersRead: manga.chapters })
+    });
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop';
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+
+    modal.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h2 style="margin:0">${escapeHtml(manga.title)}</h2>
+        <div><button id="closeModal" style="background:#ef4444;border:none;padding:10px 15px;color:white;border-radius:12px;cursor:pointer;font-weight:600;">Close</button></div>
+      </div>
+      <div class="manga-header">
+        <img class="manga-cover" src="${manga.cover || ''}" alt="${escapeHtml(manga.title)}" onerror="this.src='https.placehold.co/140x200/0a0e27/ffffff?text=No+Image'">
+        <div style="flex:1;">
+          <p><strong>Author:</strong> ${escapeHtml(manga.author)}</p>
+          <p><strong>Genre:</strong> ${escapeHtml(manga.genre)}</p>
+          <p style="margin:8px 0;"><strong>${manga.chapters} Chapters</strong></p>
+        </div>
+      </div>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:25px 0;" />
+      
+      <!-- Review Submission Form -->
+      <div id="reviewFormWrapper" style="margin-bottom: 30px;">
+        <h3 style="margin:0 0 15px">Leave a Review</h3>
+        <textarea id="reviewComment" rows="4" style="width:100%;padding:15px;border-radius:15px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:15px;" placeholder="Write your review here..."></textarea>
+        <div style="display:flex;gap:10px;margin-top:15px;">
+          <button id="submitReviewBtn" style="padding:12px 20px;border-radius:12px;border:none;background:linear-gradient(135deg,#10b981,#06b6d4);color:white;cursor:pointer;font-weight:600;">Submit Review</button>
+        </div>
+      </div>
+
+      <!-- ADDED: Container for the reviews list -->
+      <div id="reviewsContainer">
+          <h3 style="margin:0 0 15px;">Community Reviews</h3>
+          <div id="reviewsList">
+              <!-- Reviews will be rendered here by JavaScript -->
+          </div>
+      </div>
+    `;
+
+    backdrop.appendChild(modal);
+    document.body.appendChild(backdrop);
+
+    // Initial render of reviews
+    const reviewsListEl = modal.querySelector('#reviewsList');
+    renderReviews(manga.reviews, reviewsListEl);
+
+    // Modal Listeners
+    modal.querySelector('#closeModal').addEventListener('click', () => backdrop.remove());
+    
+    // MODIFIED: Refresh review list after submitting a new one
+    modal.querySelector('#submitReviewBtn').addEventListener('click', async () => {
+      const reviewText = modal.querySelector('#reviewComment').value.trim();
+      if (!reviewText) return alert('Please write a review before submitting.');
+      
+      try {
+        const postRes = await fetch(`${API_URL}/mangas/${mangaId}/reviews`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ review: reviewText })
+        });
+        const result = await postRes.json();
+        if (!postRes.ok) return alert(result.message || 'Failed to submit review');
+        
+        // --- AUTO-REFRESH LOGIC ---
+        // 1. Fetch the latest manga data which now includes the new review
+        const updatedMangaRes = await fetch(`${API_URL}/mangas/${mangaId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const updatedManga = await updatedMangaRes.json();
+        
+        // 2. Update the global list of mangas
+        const mangaIndex = allMangas.findIndex(m => m._id === mangaId);
+        if (mangaIndex !== -1) {
+            allMangas[mangaIndex] = updatedManga;
+        }
+
+        // 3. Re-render the reviews in the modal
+        renderReviews(updatedManga.reviews, reviewsListEl);
+
+        // 4. Clear the input and give feedback
+        modal.querySelector('#reviewComment').value = '';
+        alert('Review submitted successfully!');
+
+      } catch (err) {
+        alert('Failed to submit review due to a connection error.');
+      }
+    });
+  } catch(err) {
+      alert('Error: Could not open manga details.');
+      console.error(err);
+  }
+}
+
+// HISTORY PANEL
+document.getElementById('historyBtn').addEventListener('click', async () => {
+  const existing = document.getElementById('historyPanel');
+  if (existing) { existing.remove(); return; }
+  const panel = document.createElement('div');
+  panel.id = 'historyPanel';
+  panel.style.cssText = 'position:fixed; top:80px; right:20px; width:340px; max-height:80vh; overflow-y:auto; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:16px; z-index:999;';
+  panel.innerHTML = `<h3 style="margin-bottom:10px;text-align:center;">📚 Reading History</h3><div id="historyContent" style="min-height:80px;">Loading…</div><div style="text-align:center;margin-top:12px;"><button id="closeHistory" style="padding:8px 12px;border:none;background:#ef4444;color:white;border-radius:8px;cursor:pointer">Close</button></div>`;
+  document.body.appendChild(panel);
+  document.getElementById('closeHistory').addEventListener('click', () => panel.remove());
+
+  try {
+    const res = await fetch(`${API_URL}/history`, { headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) throw new Error('Failed to fetch history');
+    const history = await res.json();
+    const content = panel.querySelector('#historyContent');
+    content.innerHTML = history.length ? history.map(h => `
+      <div style="margin-bottom:12px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;">
+        <strong>${escapeHtml(h.mangaTitle)}</strong><br>
+        <small style="color:rgba(255,255,255,0.7);">Chapters Read: ${h.chaptersRead} • Read On: ${new Date(h.date).toLocaleDateString()}</small>
+      </div>
+    `).reverse().join('') : '<p style="color:#aaa;">No history yet. Read a manga to start!</p>';
+  } catch (err) {
+    const content = panel.querySelector('#historyContent');
+    if (content) content.innerHTML = '<p style="color:#f87171;">Failed to load history.</p>';
+  }
+});
+
+// Event listeners for search + sort
+document.getElementById('sortSelect').addEventListener('change', loadMangas);
+document.getElementById('searchInput').addEventListener('input', () => { clearTimeout(window.searchTimer); window.searchTimer = setTimeout(loadMangas, 500); });
+
+// Simple error display
+function showError(elementId, message) {
+  const el = document.getElementById(elementId);
+  if (!el) return alert(message);
+  el.textContent = message; el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+// escape html
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+</script>
+</body>
+</html>
+
